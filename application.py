@@ -192,6 +192,16 @@ def payment():
 
     if request.method == "POST":
 
+        busy_machines = 0
+        for i in range(len(session["cart"])):
+            machine = db.execute("SELECT * FROM machines WHERE id = ?", session["cart"][i]["machine_id"])
+            if machine[0]["locked"] == 1:
+                del session["cart"][i]
+                busy_machines += 1
+
+        if busy_machines > 0:
+            return render_template("alert.html", message="Error finishing the payment, one or more machines are busy! So I removed them from your cart.", path="/cart")
+
         if int(request.form.get("payment_method")) == 0:
             db.execute("UPDATE users SET cash = cash - ? WHERE id = ?", session["total_in_cart"], session["user_id"])
 
