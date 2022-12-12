@@ -29,17 +29,17 @@
             <div class="row">
                 <p>Produtos</p>
                 <input name="total-products" type="hidden" value="{{ total }}">
-                <p>{{ products }}</p>
+                <p>{{ payment_info["products"] }}</p>
             </div>
             <div class="row">
                 <p>Descontos</p>
                 <input name="discounts" type="hidden" value="0">
-                <p>R$0.00</p>
+                <p>{{ payment_info["discounts"] }}</p>
             </div>
             <div class="footer" style="font-weight: bold;">
                 <p>Total</p>
                 <input name="total" type="hidden" value="{{ total }}">
-                <p>{{ products - discount }}</p>
+                <p>{{ payment_info["total"] }}</p>
             </div>
             <div class="row" style="border-top: 1px solid #DDD; padding: 15px 0px">
                 <p>Cupom de desconto</p>
@@ -76,7 +76,7 @@
                     <label for="0"> Sua Carteira</label>
                     <h3>- Seu saldo: {{ session["cash"] }}</h3>
                 </div>
-            {% for method in cards %}
+            {% for method in payment_info["cards"] %}
                 <input id="{{ method["id"] }}" name="payments" type="radio" value="{{ method["cardnumber"] }}">
                 <label for="{{ method["id"] }}">{{ method["flag"] }} - {{ method["final"] }} ({{ method["method"] }})</label>
             {% endfor %}
