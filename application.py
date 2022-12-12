@@ -67,15 +67,15 @@ def cart():
         tmpDict["unit_id"] = machines[0]["unit_id"]
 
         tmpDict2["cycle_id"] = prices[0]["id"]
-        tmpDict2["price"] = br(prices[0]["price"])
+        tmpDict2["fprice"] = br(prices[0]["price"])
+        tmpDict2["price"] = prices[0]["price"]
         tmpDict2["time"] = prices[0]["time"]
 
         product.update(tmpDict)
         product.update(tmpDict2)
 
-        for row in session["cart"]:
-            if int(row["machine_id"]) == int(product["machine_id"]) and int(row["cycle_id"]) == int(product["cycle_id"]):
-                return render_template("alert.html", message="This product is already in your cart!", path="/local")
+        if product in session["cart"]:
+            return render_template("alert.html", message="This product is already in your cart!", path="/local")
 
         session["cart"].append(product)
         session["total_in_cart"] += prices[0]["price"]
@@ -114,29 +114,7 @@ def details():
         prices.append(tmpDict)
 
     return render_template("details.html", machine=machine[0], prices=prices)
-
-
-@app.route("/history")
-def history():
-    if not session.get("user_id"):
-        return redirect("/login")
-
-    history = db.execute("SELECT history.id, local, machines.id, type, price, time FROM history \
-        JOIN units ON history.unit_id = units.id \
-        JOIN machines ON history.machine_id = machines.id \
-        JOIN cycles ON history.cycle_id = cycles.id WHERE user_id = ?", session["user_id"])
-
-    history_ids = db.execute("SELECT id FROM history WHERE user_id = ?", session["user_id"])
-
-    for i in range(len(history)):
-        history[i]["price"] = br(history[i]["price"])
-        history[i]["machine_id"] = history[i]["id"]
-        del history[i]["id"]
-
-        history[i].update(history_ids[i])
-
-    return render_template("history.html", purchases=history)
-
+    
 
 @app.route("/local", methods=["GET", "POST"])
 def local():
@@ -202,8 +180,10 @@ def payment():
         if busy_machines > 0:
             return render_template("alert.html", message="Error finishing the payment, one or more machines are busy! So I removed them from your cart.", path="/cart")
 
+
         if int(request.form.get("payment_method")) == 0:
             db.execute("UPDATE users SET cash = cash - ? WHERE id = ?", session["total_in_cart"], session["user_id"])
+            session["cash"] = br(db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])[0]["cash"] - session["total_in_cart"])
 
         for machine in session["cart"]:
             db.execute("UPDATE machines SET locked = 1 WHERE id = ?", machine["machine_id"])
@@ -225,7 +205,7 @@ def payment():
 
         payments.append(tmpDict)
 
-    return render_template("payment.html", total=br(session["total_in_cart"]), cards=payments)
+    return render_template("payment.html", products=br(session["total_in_cart"]), cards=payments)
 
 
 @app.route("/mycards")
@@ -280,7 +260,9 @@ def rmv():
 
     for i in range(len(session["cart"])):
         if int(session["cart"][i]["cycle_id"]) == int(request.form.get("cycle_id")) and int(session["cart"][i]["machine_id"]) == int(request.form.get("machine_id")):
+            session["total_in_cart"] -= session["cart"][i]["price"]
             del(session["cart"][i])
+
             return redirect("/cart")
 
     return redirect("/cart")
