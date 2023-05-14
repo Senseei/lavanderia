@@ -193,9 +193,17 @@ def payment():
 
         return render_template("alert.html", message="Success!", path="/local")
 
+    if "discounts" not in session or not session["discounts"]:
+        session["discounts"] = 0.0
+
+    payment_info = {
+        "products": br(session["total_in_cart"]),
+        "total": br(session["total_in_cart"] - session["discounts"]),
+        "discounts": br(session["discounts"]),
+        "cards": []    
+    }
 
     cards = db.execute("SELECT * FROM cards WHERE user_id = ?", session["user_id"])
-    payments = []
 
     for card in cards:
         tmpDict = {}
@@ -203,10 +211,9 @@ def payment():
 
         tmpDict["final"] = int(card["cardnumber"]) % 10000
 
-        payments.append(tmpDict)
+        payment_info["cards"].append(tmpDict)
 
-    return render_template("payment.html", products=br(session["total_in_cart"]), cards=payments)
-
+    return render_template("payment.html", payment_info=payment_info)
 
 @app.route("/mycards")
 def mycards():
