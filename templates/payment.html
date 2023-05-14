@@ -29,7 +29,7 @@
             <div class="row">
                 <p>Produtos</p>
                 <input name="total-products" type="hidden" value="{{ total }}">
-                <p>{{ total }}</p>
+                <p>{{ products }}</p>
             </div>
             <div class="row">
                 <p>Descontos</p>
@@ -39,7 +39,7 @@
             <div class="footer" style="font-weight: bold;">
                 <p>Total</p>
                 <input name="total" type="hidden" value="{{ total }}">
-                <p>{{ total }}</p>
+                <p>{{ products - discount }}</p>
             </div>
             <div class="row" style="border-top: 1px solid #DDD; padding: 15px 0px">
                 <p>Cupom de desconto</p>
@@ -59,7 +59,7 @@
                             <p>Serviço de Secar</p>
                         {% endif %}
                         <p>Tempo de {{ (product["time"] / 60)|int }} min</p>
-                        <p>{{ product["price"] }}</p>
+                        <p>{{ product["fprice"] }}</p>
                     </div>
                 </div>
             {% endfor %}
