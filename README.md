@@ -15,3 +15,9 @@ like a credit card for example, or use our wallet, which has 2000 reais (R$BRL) 
 - Language: Python
 - Framework: Flask
 - Organization Level: Simplest
+
+## News!
+Hey! Did you know I'm refactoring this old project?
+I was learning a well knwown pattern called Clean Architecture, so I decided to create a remake of this project, following some of the best code practices in terms of code organization.
+Check it out if you want to see more details about it:
+https://github.com/Senseei/lanvaderia-reinvented
